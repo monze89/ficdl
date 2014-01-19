@@ -20,11 +20,15 @@ from optparse import OptionParser
 #
 
 fList = ''
+dest = ''
 if '-f' in sys.argv:
     fList = sys.argv[sys.argv.index('-f')+1]
 
 if '-d' in sys.argv:
     dest = sys.argv[sys.argv.index('-d')+1]
+    if dest[-1] != '/':
+        dest += '/'
+
 
 if '-u' in sys.argv:
     url = sys.argv[sys.argv.index('-u')+1]
@@ -76,9 +80,9 @@ def getStory(storyUrl):
         chapCount += 1
         chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
-    print chapCount-1
-    print title
-    print author
+    print "Title of the Story  :  " + title
+    print "Author of the Story :  " + author
+    print "Chapters            :  " + chapCount-1
 
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
@@ -88,9 +92,9 @@ def getStory(storyUrl):
 
     # Convert the book using ebook-convert - (Does most of the job for now)
     print "Converting the file......"
-    subprocess.call(['ebook-convert',filTitle + '.html',title + '-' + author + '.' + filType])
+    subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType])
     subprocess.call(['rm',filTitle + '.html'])
-    print "Saved file to " + title + '-' + author + '.' + filType
+    print "Saved file to " + dest + title + '-' + author + '.' + filType
 
 if __name__ == '__main__':
     if fList == '':
