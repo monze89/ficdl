@@ -1,9 +1,11 @@
+#!/bin/python2
 ''' A script to dl fanfiction from ffnet'''
 import requests as re
 import sys
 from lxml import html
 import subprocess
 from optparse import OptionParser
+#TODO Convert random parsing to optparse
 
 # Basics
 #
@@ -82,7 +84,7 @@ def getStory(storyUrl):
 
     print "Title of the Story  :  " + title
     print "Author of the Story :  " + author
-    print "Chapters            :  " + chapCount-1
+    print "Chapters            :  " + str(chapCount-1)
 
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
@@ -109,5 +111,6 @@ if __name__ == '__main__':
             if line != '':
                 print "Started getting story from " + line
                 getStory(line)
-                print "    Moving to the next story \n"
+                print "    Completed."
 
+#TODO  Print a status at the end
