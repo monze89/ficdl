@@ -10,6 +10,17 @@ Still in the initial stages.
 * Uses calibre's ebook-convert for the conversion.
 * Automatically creates table of contents
 
+#### Usage:
+```
+    Usage: ./ficdl.py [option] [arg] [option] [arg]
+
+    Options:
+        -u <url>   Download story
+        -f <file>  Use file to get list of urls.      
+        -d <dir>   Save file to a specific destination.
+        -t <type>  Specify one of three types mobi,epub or pdf for final save. Default is mobi.
+```
+
 
 To Do:
 =====
