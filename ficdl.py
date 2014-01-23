@@ -63,10 +63,13 @@ def getStory(storyUrl,progbar):
 
     # Get number of chapters
     chapCount = 1
+    chapNum = 1
     author = ''
     title = ''
     finalStory = ''
     summary = ''
+    stats = ''
+    statLine  = []
     notFoundText = 'Chapter not found. Please check to see you are not using an outdated url.' 
     chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
@@ -74,6 +77,7 @@ def getStory(storyUrl,progbar):
     # Add all the relevant text to finalStory
     while (html.fromstring(chap.text).xpath('/html/body/div/span/text()[2]')) != notFoundText.split('%'):
         
+
         # Get author ,summary and title
         if title == '':
             title = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/b')[0].text
@@ -85,22 +89,42 @@ def getStory(storyUrl,progbar):
         if summary == '':
             summary = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/div')[0].text
             finalStory += "Summary<div>" + summary + "</div><br/>"
+        if stats == '':
+            statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[1]')
+            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[1]')[0].text
+            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[2]')
+            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[2]')[0].text
+            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[3]')
+            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[4]')
+            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/span[2]')[0].text
+            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[5]')
+            stats = ''.join(statLine)
+            chapNum = stats[stats.index('Chapters:')+10:stats.index('- Words')-1]
+            print ''
+            print "Title of the Story  :  " + title
+            print "Author of the Story :  " + author
+            print "Summary             :  " + summary
+            print ''
+            print "Statistics          :  " + stats
+            print "Retrieving the " + chapNum + " chapters"
+            chapProg = ProgressBar(**{
+                'end':int(chapNum),
+                'width':30,
+                })
+            chapProg += 1
+
+            finalStory += "Statistics<div>" + stats + "</div><br/>"
         
+        print chapProg
         # Add chapter text to final story
         finalStory += "<h2>Chapter " + str(chapCount) + "</h2>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
-
-        print "Chapter " + str(chapCount ) + "  of " + title + " found."
-        print "Overall Progress",
-        print progbar
+        
 
         chapCount += 1
+        chapProg += 1
         chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
-    print "Title of the Story  :  " + title
-    print "Author of the Story :  " + author
-    print "Summary             :  " + summary
-    print "Chapters            :  " + str(chapCount-1)
 
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
@@ -113,10 +137,11 @@ def getStory(storyUrl,progbar):
     subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType],stdout=DEVNULL, stderr = subprocess.STDOUT)
     subprocess.call(['rm',filTitle + '.html'])
     print "Saved file to " + dest + title + '-' + author + '.' + filType
+    print progbar
 
 if __name__ == '__main__':
     if fList == '':
-        getStory(url)
+        getStory(url,0)
     else:
         try:
             storyList = open(fList,'r')
@@ -137,5 +162,6 @@ if __name__ == '__main__':
                 getStory(line,prog)
                 prog += 1
                 print "    Completed."
+                print ''
 
 #TODO  Print a status at the end
