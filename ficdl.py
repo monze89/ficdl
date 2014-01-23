@@ -21,6 +21,11 @@ from progressbar import ProgressBar
 # Step 3:  Put all content in one html file.
 # Step 4:  Use calibre to convert the file to required format
 #
+try:
+    from subprocess import DEVNULL # py3k
+except ImportError:
+    import os
+    DEVNULL = open(os.devnull, 'wb')
 
 fList = ''
 dest = ''
@@ -97,7 +102,7 @@ def getStory(storyUrl,progbar):
 
     # Convert the book using ebook-convert - (Does most of the job for now)
     print "Converting the file......"
-    subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType],stdout=FNULL, stderr = subprocess.STDOUT)
+    subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType],stdout=DEVNULL, stderr = subprocess.STDOUT)
     subprocess.call(['rm',filTitle + '.html'])
     print "Saved file to " + dest + title + '-' + author + '.' + filType
 
