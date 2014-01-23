@@ -5,6 +5,7 @@ import sys
 from lxml import html
 import subprocess
 from optparse import OptionParser
+from clint.textui import progress
 #TODO Convert random parsing to optparse
 
 # Basics
@@ -77,14 +78,14 @@ def getStory(storyUrl):
         finalStory += "<h1>Chapter " + str(chapCount) + "</h1>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
 
-        print "Chapter " + str(chapCount ) + " found."
+        #print "Chapter " + str(chapCount ) + " found."
 
         chapCount += 1
         chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
-    print "Title of the Story  :  " + title
-    print "Author of the Story :  " + author
-    print "Chapters            :  " + str(chapCount-1)
+    #print "Title of the Story  :  " + title
+    #print "Author of the Story :  " + author
+    #print "Chapters            :  " + str(chapCount-1)
 
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
@@ -94,7 +95,7 @@ def getStory(storyUrl):
 
     # Convert the book using ebook-convert - (Does most of the job for now)
     print "Converting the file......"
-    subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType])
+    subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType],stdout=FNULL, stderr = subprocess.STDOUT)
     subprocess.call(['rm',filTitle + '.html'])
     print "Saved file to " + dest + title + '-' + author + '.' + filType
 
@@ -106,11 +107,13 @@ if __name__ == '__main__':
             storyList = open(fList,'r')
         except:
             print "Error opening the file."
-
-        for line in storyList.readlines():
+        
+        sList = storyList.read().split('\n')
+        for i in progress.bar(range(len(sList))):
+            line = sList[i]
             if line != '':
-                print "Started getting story from " + line
+                #print "Started getting story from " + line
                 getStory(line)
-                print "    Completed."
+                #print "    Completed."
 
 #TODO  Print a status at the end
