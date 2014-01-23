@@ -57,7 +57,7 @@ if '-t' in sys.argv:
 else:
     filType = 'mobi'
 
-def getStory(storyUrl,progbar):
+def getStory(storyUrl,progbar, storynumber):
     # Find the story id
     storyId = storyUrl[storyUrl.find('/s/')+3:storyUrl.find('/s/')+10]
 
@@ -72,6 +72,9 @@ def getStory(storyUrl,progbar):
     statLine  = []
     notFoundText = 'Chapter not found. Please check to see you are not using an outdated url.' 
     chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
+
+    print "Overall Progress:",
+    print progbar
 
     # Loop till you get notfoundtext.
     # Add all the relevant text to finalStory
@@ -106,7 +109,6 @@ def getStory(storyUrl,progbar):
             print "Summary             :  " + summary
             print ''
             print "Statistics          :  " + stats
-            print "Retrieving the " + chapNum + " chapters"
             chapProg = ProgressBar(**{
                 'end':int(chapNum),
                 'width':30,
@@ -115,6 +117,7 @@ def getStory(storyUrl,progbar):
 
             finalStory += "Statistics<div>" + stats + "</div><br/>"
         
+        print str(storynumber) + ".  " + title,
         print chapProg
         # Add chapter text to final story
         finalStory += "<h2>Chapter " + str(chapCount) + "</h2>"
@@ -141,7 +144,7 @@ def getStory(storyUrl,progbar):
 
 if __name__ == '__main__':
     if fList == '':
-        getStory(url,0)
+        getStory(url,0,1)
     else:
         try:
             storyList = open(fList,'r')
@@ -156,10 +159,11 @@ if __name__ == '__main__':
         }
         prog = ProgressBar(**progressBarOpt)
         for line in sList:
+            storyNum = sList.index(line) +1
             if line != '':
-                print prog
+                print ''
                 print "Started getting story from " + line
-                getStory(line,prog)
+                getStory(line,prog,storyNum)
                 prog += 1
                 print "    Completed."
                 print ''
