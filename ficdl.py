@@ -66,6 +66,7 @@ def getStory(storyUrl,progbar):
     author = ''
     title = ''
     finalStory = ''
+    summary = ''
     notFoundText = 'Chapter not found. Please check to see you are not using an outdated url.' 
     chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
@@ -73,14 +74,20 @@ def getStory(storyUrl,progbar):
     # Add all the relevant text to finalStory
     while (html.fromstring(chap.text).xpath('/html/body/div/span/text()[2]')) != notFoundText.split('%'):
         
-        # Get author and title
+        # Get author ,summary and title
         if title == '':
             title = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/b')[0].text
+            finalStory += "<h1>" + title + "</h1><br/>"
         if author == '':
             author = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/a[1]')[0].text
+            finalStory += "<h2>" + title + "</h2><br/>"
+            finalStory += "<h3>" + author + "</h3><br/>"
+        if summary == '':
+            summary = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/div')[0].text
+            finalStory += "Summary<div>" + summary + "</div><br/>"
         
         # Add chapter text to final story
-        finalStory += "<h1>Chapter " + str(chapCount) + "</h1>"
+        finalStory += "<h2>Chapter " + str(chapCount) + "</h2>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
 
         print "Chapter " + str(chapCount ) + "  of " + title + " found."
@@ -92,6 +99,7 @@ def getStory(storyUrl,progbar):
 
     print "Title of the Story  :  " + title
     print "Author of the Story :  " + author
+    print "Summary             :  " + summary
     print "Chapters            :  " + str(chapCount-1)
 
     # Open a html file, and put this in the file
