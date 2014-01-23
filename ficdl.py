@@ -83,7 +83,7 @@ def getStory(storyUrl,progbar):
         finalStory += "<h1>Chapter " + str(chapCount) + "</h1>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
 
-        print "Chapter " + str(chapCount ) + " found."
+        print "Chapter " + str(chapCount ) + "  of " + title + " found."
         print "Overall Progress",
         print progbar
 
