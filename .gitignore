@@ -1,2 +1,4 @@
 test/*
 list
+*.pyc
+.gitmodules

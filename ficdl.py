@@ -5,7 +5,7 @@ import sys
 from lxml import html
 import subprocess
 from optparse import OptionParser
-from clint.textui import progress
+from progressbar import ProgressBar
 #TODO Convert random parsing to optparse
 
 # Basics
@@ -52,7 +52,7 @@ if '-t' in sys.argv:
 else:
     filType = 'mobi'
 
-def getStory(storyUrl):
+def getStory(storyUrl,progbar):
     # Find the story id
     storyId = storyUrl[storyUrl.find('/s/')+3:storyUrl.find('/s/')+10]
 
@@ -78,14 +78,16 @@ def getStory(storyUrl):
         finalStory += "<h1>Chapter " + str(chapCount) + "</h1>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
 
-        #print "Chapter " + str(chapCount ) + " found."
+        print "Chapter " + str(chapCount ) + " found."
+        print "Overall Progress",
+        print progbar
 
         chapCount += 1
         chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
 
-    #print "Title of the Story  :  " + title
-    #print "Author of the Story :  " + author
-    #print "Chapters            :  " + str(chapCount-1)
+    print "Title of the Story  :  " + title
+    print "Author of the Story :  " + author
+    print "Chapters            :  " + str(chapCount-1)
 
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
@@ -109,11 +111,18 @@ if __name__ == '__main__':
             print "Error opening the file."
         
         sList = storyList.read().split('\n')
-        for i in progress.bar(range(len(sList))):
-            line = sList[i]
+        progressBarOpt = {
+                'end':len(sList),
+                'width':50,
+                #'format':'%(progress)s%% [%(fill)s%(blank)s]'
+        }
+        prog = ProgressBar(**progressBarOpt)
+        for line in sList:
             if line != '':
-                #print "Started getting story from " + line
-                getStory(line)
-                #print "    Completed."
+                print prog
+                print "Started getting story from " + line
+                getStory(line,prog)
+                prog += 1
+                print "    Completed."
 
 #TODO  Print a status at the end
