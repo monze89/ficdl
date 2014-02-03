@@ -93,19 +93,24 @@ def getStory(storyUrl,progbar, storynumber):
             summary = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/div')[0].text
             finalStory += "Summary<div>" + summary + "</div><br/>"
         if stats == '':
-            statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[1]')
-            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[1]')[0].text
-            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[2]')
-            statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[2]')[0].text
-            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[3]')
-            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[4]')
-            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/span[2]')[0].text
-            statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[5]')
+            try:
+                statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[1]')
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[1]')[0].text
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[2]')
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[2]')[0].text
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[3]')
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[4]')
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/span[2]')[0].text
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[5]')
+            except:
+                statLine = ''
+
             stats = ''.join(statLine)
-            chapNum = stats[stats.index('Chapters:')+10:stats.index('- Words')-1]
+            chapNum = chap.text[chap.text.index('Chapters:')+10:chap.text.index('- Words')-1]
             print ''
             print "Title of the Story  :  " + title
             print "Author of the Story :  " + author
+            print "Chapters            :  " + chapNum
             print "Summary             :  " + summary
             print ''
             print "Statistics          :  " + stats
@@ -132,7 +137,7 @@ def getStory(storyUrl,progbar, storynumber):
     # Open a html file, and put this in the file
     filTitle = title.replace(' ','_')
     htfil = open(filTitle + '.html','w+')
-    htfil.write(finalStory)
+    htfil.write(finalStory.encode('utf-8'))
     htfil.close()
 
     # Convert the book using ebook-convert - (Does most of the job for now)
