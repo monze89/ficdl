@@ -91,19 +91,23 @@ def getStory(storyUrl,progbar, storynumber):
             finalStory += "<h3>" + author + "</h3><br/>"
         if summary == '':
             summary = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/div')[0].text
-            finalStory += "Summary<div>" + summary + "</div><br/>"
+            finalStory += "Summary: <div>" + summary + "</div><br/>"
         if stats == '':
+            if html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[3]/text()[1]') == ['Rated: ']:
+                spanNum = 3
+            else:
+                spanNum = 4
             try:
-                statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[1]')
-                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[1]')[0].text
-                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[2]')
-                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/a[2]')[0].text
-                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[3]')
-                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[4]')
-                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/span[2]')[0].text
-                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[4]/text()[5]')
+                statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[1]')
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/a[1]')[0].text
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[2]')
+                statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/a[2]')[0].text
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[3]')
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[4]')
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/span[2]')[0].text
+                statLine +=html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[5]')
             except:
-                statLine = ''
+                statLine = 'Not Found'
 
             stats = ''.join(statLine)
             chapNum = chap.text[chap.text.index('Chapters:')+10:chap.text.index('- Words')-1]
@@ -122,7 +126,9 @@ def getStory(storyUrl,progbar, storynumber):
 
             finalStory += "Statistics<div>" + stats + "</div><br/>"
         
-        print str(storynumber) + ".  " + title,
+        if chapCount == 1:
+            print "Story   Chapter   Story Name              Progress"
+        print str(storynumber) + ".      " + str(chapCount) + " of " + str(chapNum) + "  " + title,
         print chapProg
         # Add chapter text to final story
         finalStory += "<h2>Chapter " + str(chapCount) + "</h2>"
@@ -149,7 +155,10 @@ def getStory(storyUrl,progbar, storynumber):
 
 if __name__ == '__main__':
     if fList == '':
+        print "Started getting story from " + url
         getStory(url,0,1)
+        print "    Completed."
+        print ''
     else:
         try:
             storyList = open(fList,'r')
