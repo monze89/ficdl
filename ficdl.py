@@ -59,7 +59,14 @@ else:
 
 def getStory(storyUrl,progbar, storynumber):
     # Find the story id
-    storyId = storyUrl[storyUrl.find('/s/')+3:storyUrl.find('/s/')+10]
+    storyIdEnd = storyUrl[storyUrl.find('/s/')+10]
+    if storyIdEnd == '/':
+        print '  Story url found.'
+        storyId = storyUrl[storyUrl.find('/s/')+3:storyUrl.find('/s/')+10]
+    else:
+        print '  Story id is longer than normal. '
+        storyId = storyUrl[storyUrl.find('/s/')+3:storyUrl.find('/s/')+11]
+
 
     # Get number of chapters
     chapCount = 1
@@ -71,7 +78,8 @@ def getStory(storyUrl,progbar, storynumber):
     stats = ''
     statLine  = []
     notFoundText = 'Chapter not found. Please check to see you are not using an outdated url.' 
-    chap = re.get('https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount)))
+    chap_url = 'https://www.fanfiction.net/s/%s/%s/' % (storyId,str(chapCount))
+    chap = re.get(chap_url)
 
     print "Overall Progress:",
     print progbar
@@ -93,10 +101,15 @@ def getStory(storyUrl,progbar, storynumber):
             summary = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/div')[0].text
             finalStory += "Summary: <div>" + summary + "</div><br/>"
         if stats == '':
-            if html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[3]/text()[1]') == ['Rated: ']:
-                spanNum = 3
-            else:
+            try:
+                # When there's a profile pic, it's 4, else , it's 3.
+                if html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span[3]/text()[1]') == ['Rated: ']:
+                    spanNum = 3
+                else:
+                    spanNum = 4
+            except:
                 spanNum = 4
+
             try:
                 statLine = html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/text()[1]')
                 statLine += html.fromstring(chap.text).xpath('//*[@id="profile_top"]/span['+str(spanNum)+']/a[1]')[0].text
@@ -110,7 +123,12 @@ def getStory(storyUrl,progbar, storynumber):
                 statLine = 'Not Found'
 
             stats = ''.join(statLine)
-            chapNum = chap.text[chap.text.index('Chapters:')+10:chap.text.index('- Words')-1]
+            try:
+                chapNum = chap.text[chap.text.index('Chapters:')+10:chap.text.index('- Words')-1]
+            except:
+                # If there's no "Chapters" text, that means one shot.
+                chapNum = str(1)
+
             print ''
             print "Title of the Story  :  " + title
             print "Author of the Story :  " + author
@@ -128,8 +146,9 @@ def getStory(storyUrl,progbar, storynumber):
         
         if chapCount == 1:
             print "Story   Chapter   Story Name              Progress"
-        print str(storynumber) + ".      " + str(chapCount) + " of " + str(chapNum) + "  " + title,
-        print chapProg
+            print str(storynumber) + ".      " + str(chapCount) + " of " + str(chapNum) + "  " + title,
+        sys.stdout.write('\r' + str(storynumber) + ".      " + str(chapCount) + " of " + str(chapNum) + "  " + title + "  " + str(chapProg))
+        sys.stdout.flush()
         # Add chapter text to final story
         finalStory += "<h2>Chapter " + str(chapCount) + "</h2>"
         finalStory += html.tostring((html.fromstring(chap.text).xpath('//*[@id="storytext"]'))[0])
@@ -147,7 +166,7 @@ def getStory(storyUrl,progbar, storynumber):
     htfil.close()
 
     # Convert the book using ebook-convert - (Does most of the job for now)
-    print "Converting the file......"
+    print "\nConverting the file......"
     subprocess.call(['ebook-convert',filTitle + '.html',dest + title + '-' + author + '.' + filType],stdout=DEVNULL, stderr = subprocess.STDOUT)
     subprocess.call(['rm',filTitle + '.html'])
     print "Saved file to " + dest + title + '-' + author + '.' + filType
